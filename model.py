@@ -1,3 +1,4 @@
+import re
 import torch
 
 ## Today's task: Create our own from-scratch word embedding model
@@ -23,7 +24,9 @@ class Embedding(torch.nn.Module):
     def __init__(self, number_of_words):
         super(Embedding, self).__init__()
         self.number_of_words = number_of_words
-        self.embedding  = torch.nn.Embedding(number_of_words, 256)
+        ## thank you @DeeNA - we will write our own Embedding
+        self.embedding        = torch.tensor(number_of_words, 256, bias=False)
+        self.embeddingPyTorch = torch.nn.Embedding(number_of_words, 256)
         ## TODO maybe a norm layer
         ## note may alraedy be dividing by number_of_words
         ## Linear layer without bias and 
@@ -33,7 +36,7 @@ class Embedding(torch.nn.Module):
     def forward(self, sentence):
         features = vectorize(sentence)
         out = self.embedding(features)
-        out = out.mean(dim=1)
+        #out = out.mean(dim=1)
         return out
 
         ## sigmoid(sqrt(sentenceA.dot(sentenceB)))
@@ -41,7 +44,7 @@ class Embedding(torch.nn.Module):
         ## sigmoid(sentenceA.dot(sentenceB))
 
 def normalize(words):
-    return words.lower().replace(r'[^a-zA-Z0-9 ]+', '').split()
+    return re.sub( r'[^a-z0-9 ]', '', words.lower() ).split()
 
 def build_dictionary(data):
     dictionary = { 'pad' : 0 }
