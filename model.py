@@ -55,7 +55,7 @@ class Embedding(torch.nn.Module):
         out = out.view((1, -1))
         out = self.activation1(self.linear1(out))
         out = self.activation2(self.linear2(out))
-        return out
+        return out.squeeze(dim=0)
 
 def normalize(words):
     return re.sub( r'[^a-z0-9 ]', '', words.lower() ).split()
@@ -83,7 +83,8 @@ def data_iterator(sentence, context):
     ## TODO Shuffle
     for index, word in enumerate(sentence):
         features = ' '.join(words[index:index+context])
-        labels = one_hot(tokens[index+context+1], dictionary)
+        #labels = one_hot(tokens[index+context+1], dictionary)#.unsqueeze(dim=0)
+        labels = tokens[index+context+1].unsqueeze(dim=0)
 
         yield features, labels
         if index + context >= len(tokens)-2: break
@@ -119,6 +120,6 @@ for feature, label in data_iterator(words, context_length):
     print('out:',out)
     print('out.shape:',out.shape)
     #print(feature.shape)
-    #loss = loss_fn(out, label)
-    #print(loss)
+    loss = loss_fn(out, label)
+    print(loss)
     break
