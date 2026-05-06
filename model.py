@@ -79,27 +79,27 @@ def tokenizer(sentence, dictionary):
 def data_iterator(sentence):
     length = 3
     dictionary = build_dictionary(sentence)
-    vectors = tokenizer(sentence, dictionary)
+    tokens = tokenizer(sentence, dictionary)
     words = normalize(sentence)
 
     ## TODO Shuffle
     for index, word in enumerate(sentence):
-        features = words[index:index+length]#.unsqueeze(dim=-1)
-        labels = one_hot(vectors[index+length+1], dictionary)
+        features = ' '.join(words[index:index+length-1])
+        labels = one_hot(tokens[index+length+1], dictionary)
 
         yield features, labels
-        if index + length >= len(vectors)-1: break
+        if index + length >= len(tokens)-1: break
 
 def one_hot(tensor, dictionary):
     return torch.zeros(len(dictionary)).scatter_(0, tensor, 1)
 
 words = "Found the bug, when you spam enter, the bot will send the messages automatically for the number of times you pressed. If you press 10 times it will answer 10 times automatically."
-print('words',words)
-print('normalize(words)',normalize(words))
+#print('words',words)
+#print('normalize(words)',normalize(words))
 #print(dictionary)
 dictionary = build_dictionary(words)
-vectors = tokenizer("Found when you", dictionary)
-print('vectors',vectors)
+#tokens = tokenizer("Found when you", dictionary)
+#print('tokens',tokens)
 model = Embedding(dictionary)
 #loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
 loss_fn = torch.nn.CrossEntropyLoss()
@@ -113,14 +113,13 @@ out = model(words)
 
 ## TODO Train the model here.....
 for feature, label in data_iterator(words):
-    break
     print('feature', feature)
+    print('label',label)
+    print('label.shape',label.shape)
     out = model(feature)
     print('out',out)
     print('out.shape',out.shape)
     break
-    print('label',label)
-    print('label.shape',label.shape)
     print('len(dictionary)',len(dictionary))
     break
     #print(feature.shape)
