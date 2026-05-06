@@ -34,29 +34,28 @@ import torch
         ## <=
 
 class Embedding(torch.nn.Module):
-    def __init__(self, dictionary):
+    def __init__(self, dictionary, context):
         super(Embedding, self).__init__()
-        self.number_of_words  = len(dictionary)
-        self.dictionary       = dictionary
+        self.number_of_words = len(dictionary)
+        self.context = context
+        self.dictionary = dictionary
         ## thank you @DeeNA - we will write our own Embedding
-        self.embedding        = torch.rand(self.number_of_words, 256, requires_grad=True)
+        self.embedding = torch.rand(self.number_of_words, 64, requires_grad=True)
         #self.embedding = torch.nn.Embedding(number_of_words, 256)
         ## LSTM???
-        self.activation = torch.nn.GELU()
-        self.linear1    = torch.nn.Linear(256, 256)
-        self.linear2    = torch.nn.Linear(256, 128)
-        self.linear3    = torch.nn.Linear(128, self.number_of_words)
+        self.linear1 = torch.nn.Linear(context * 64, 32)
+        self.linear2 = torch.nn.Linear(32, self.number_of_words)
+        self.activation1 = torch.nn.GELU()
+        self.activation2 = torch.nn.LogSoftmax(dim=1)
 
     def forward(self, sentence):
         out = tokenizer(sentence, self.dictionary)
-        return out
         out = self.embedding[out]
-        out = out.mean(dim=1)
+        #out = out.mean(dim=0)
+        out = out.view((1, -1))
+        out = self.activation1(self.linear1(out))
+        out = self.activation2(self.linear2(out))
         return out
-
-        ## sigmoid(sqrt(sentenceA.dot(sentenceB)))
-        ## OR???
-        ## sigmoid(sentenceA.dot(sentenceB))
 
 def normalize(words):
     return re.sub( r'[^a-z0-9 ]', '', words.lower() ).split()
@@ -76,19 +75,18 @@ def tokenizer(sentence, dictionary):
 #for X, y in data_iterator(data):
 
 ## N-Gram Iterator
-def data_iterator(sentence):
-    length = 3
+def data_iterator(sentence, context):
     dictionary = build_dictionary(sentence)
     tokens = tokenizer(sentence, dictionary)
     words = normalize(sentence)
 
     ## TODO Shuffle
     for index, word in enumerate(sentence):
-        features = ' '.join(words[index:index+length-1])
-        labels = one_hot(tokens[index+length+1], dictionary)
+        features = ' '.join(words[index:index+context])
+        labels = one_hot(tokens[index+context+1], dictionary)
 
         yield features, labels
-        if index + length >= len(tokens)-1: break
+        if index + context >= len(tokens)-2: break
 
 def one_hot(tensor, dictionary):
     return torch.zeros(len(dictionary)).scatter_(0, tensor, 1)
@@ -97,31 +95,30 @@ words = "Found the bug, when you spam enter, the bot will send the messages auto
 #print('words',words)
 #print('normalize(words)',normalize(words))
 #print(dictionary)
+context_length = 3
 dictionary = build_dictionary(words)
 #tokens = tokenizer("Found when you", dictionary)
 #print('tokens',tokens)
-model = Embedding(dictionary)
-#loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
-loss_fn = torch.nn.CrossEntropyLoss()
-out = model(words)
+model = Embedding(dictionary, context_length)
+loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
+#loss_fn = torch.nn.CrossEntropyLoss()
+out = model('when found bug')
 
-#print(out)
-#print(out.shape)
-#print(len(vectors))
+print(out)
+print(out.shape)
 
 #print(one_hot(vectors[3]))
 
 ## TODO Train the model here.....
-for feature, label in data_iterator(words):
-    print('feature', feature)
-    print('label',label)
-    print('label.shape',label.shape)
+for feature, label in data_iterator(words, context_length):
+    print('feature:', feature)
+    print('label:',label)
+    print('label.shape:',label.shape)
+    #out = tokenizer(feature, dictionary)
     out = model(feature)
-    print('out',out)
-    print('out.shape',out.shape)
-    break
-    print('len(dictionary)',len(dictionary))
-    break
+    print('out:',out)
+    print('out.shape:',out.shape)
     #print(feature.shape)
     #loss = loss_fn(out, label)
     #print(loss)
+    break
