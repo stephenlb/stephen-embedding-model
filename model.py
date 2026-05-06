@@ -34,19 +34,18 @@ import torch
         ## <=
 
 class Embedding(torch.nn.Module):
-    def __init__(self, number_of_words, dictionary):
+    def __init__(self, dictionary):
         super(Embedding, self).__init__()
-        self.number_of_words  = number_of_words
+        self.number_of_words  = len(dictionary)
         self.dictionary       = dictionary
         ## thank you @DeeNA - we will write our own Embedding
-        self.embedding        = torch.rand(number_of_words, 256, requires_grad=True)
+        self.embedding        = torch.rand(self.number_of_words, 256, requires_grad=True)
         #self.embedding = torch.nn.Embedding(number_of_words, 256)
-        ## TODO maybe a norm layer
-        ## note may alraedy be dividing by number_of_words
-        ## Linear layer without bias and 
         ## LSTM???
-        #self.activation = torch.nn.GELU()
-        #self.linear1    = torch.nn.Linear(256, number_of_words)
+        self.activation = torch.nn.GELU()
+        self.linear1    = torch.nn.Linear(256, 256)
+        self.linear2    = torch.nn.Linear(256, 128)
+        self.linear3    = torch.nn.Linear(128, self.number_of_words)
 
     def forward(self, sentence):
         features = tokenizer(sentence, self.dictionary)
@@ -62,11 +61,11 @@ def normalize(words):
     return re.sub( r'[^a-z0-9 ]', '', words.lower() ).split()
 
 def build_dictionary(data):
-    dictionary = { 'pad' : 0 }
+    dictionary = { 'PAD' : 0 }
     for word in normalize(data):
         if not(word in dictionary):
             dictionary.update({word:len(dictionary)})
-    return len(dictionary), dictionary
+    return dictionary
 
 def tokenizer(sentence, dictionary):
     norms = normalize(words)
@@ -77,19 +76,20 @@ def tokenizer(sentence, dictionary):
 
 ## N-Gram Iterator
 def data_iterator(sentence):
-    number_of_words, dictionary = build_dictionary(sentence)
+    length = 1
+    dictionary = build_dictionary(sentence)
     vectors = tokenizer(sentence, dictionary)
     words = normalize(sentence)
 
     ## TODO Shuffle
     for index, word in enumerate(sentence):
-        features = vectors[index:index+3]
-        labels = one_hot(vectors[index+3])
+        features = vectors[index:index+length].unsqueeze(dim=-1)
+        labels = one_hot(vectors[index+length], dictionary)
 
         yield features, labels
-        if index + 3 >= len(vectors)-1: break
+        if index + length >= len(vectors)-1: break
 
-def one_hot(tensor):
+def one_hot(tensor, dictionary):
     return torch.zeros(len(dictionary)).scatter_(0, tensor, 1)
 
 words = "Found the bug, when you spam enter, the bot will send the messages automatically for the number of times you pressed. If you press 10 times it will answer 10 times automatically."
@@ -97,8 +97,8 @@ words = "Found the bug, when you spam enter, the bot will send the messages auto
 #print(dictionary)
 ##vectors = tokenizer(words, dictionary)
 #print(vectors)
-number_of_words, dictionary = build_dictionary(words)
-model = Embedding(number_of_words, dictionary)
+dictionary = build_dictionary(words)
+model = Embedding(dictionary)
 #loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
 loss_fn = torch.nn.CrossEntropyLoss()
 out = model(words)
@@ -111,6 +111,16 @@ out = model(words)
 
 ## TODO Train the model here.....
 for feature, label in data_iterator(words):
-    print(feature, label)
-    out = model(features)
-    print(out)
+    print('feature', feature)
+    print('feature.shape', feature.shape)
+    out = model(feature)
+    #print(out)
+    print('out',out)
+    print('out.shape',out.shape)
+    print('label',label)
+    print('label.shape',label.shape)
+    print('len(dictionary)',len(dictionary))
+    break
+    #print(feature.shape)
+    #loss = loss_fn(out, label)
+    #print(loss)
