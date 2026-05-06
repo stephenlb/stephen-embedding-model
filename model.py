@@ -48,9 +48,10 @@ class Embedding(torch.nn.Module):
         self.linear3    = torch.nn.Linear(128, self.number_of_words)
 
     def forward(self, sentence):
-        features = tokenizer(sentence, self.dictionary)
-        out = self.embedding[features]
-        #out = out.mean(dim=1)
+        out = tokenizer(sentence, self.dictionary)
+        return out
+        out = self.embedding[out]
+        out = out.mean(dim=1)
         return out
 
         ## sigmoid(sqrt(sentenceA.dot(sentenceB)))
@@ -68,7 +69,7 @@ def build_dictionary(data):
     return dictionary
 
 def tokenizer(sentence, dictionary):
-    norms = normalize(words)
+    norms = normalize(sentence)
     tokens = [dictionary[word] for word in norms]
     return torch.tensor(tokens, dtype=torch.long)
         
@@ -76,15 +77,15 @@ def tokenizer(sentence, dictionary):
 
 ## N-Gram Iterator
 def data_iterator(sentence):
-    length = 1
+    length = 3
     dictionary = build_dictionary(sentence)
     vectors = tokenizer(sentence, dictionary)
     words = normalize(sentence)
 
     ## TODO Shuffle
     for index, word in enumerate(sentence):
-        features = vectors[index:index+length].unsqueeze(dim=-1)
-        labels = one_hot(vectors[index+length], dictionary)
+        features = words[index:index+length]#.unsqueeze(dim=-1)
+        labels = one_hot(vectors[index+length+1], dictionary)
 
         yield features, labels
         if index + length >= len(vectors)-1: break
@@ -93,11 +94,12 @@ def one_hot(tensor, dictionary):
     return torch.zeros(len(dictionary)).scatter_(0, tensor, 1)
 
 words = "Found the bug, when you spam enter, the bot will send the messages automatically for the number of times you pressed. If you press 10 times it will answer 10 times automatically."
-#print(normalize(words))
+print('words',words)
+print('normalize(words)',normalize(words))
 #print(dictionary)
-##vectors = tokenizer(words, dictionary)
-#print(vectors)
 dictionary = build_dictionary(words)
+vectors = tokenizer("Found when you", dictionary)
+print('vectors',vectors)
 model = Embedding(dictionary)
 #loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
 loss_fn = torch.nn.CrossEntropyLoss()
@@ -111,12 +113,12 @@ out = model(words)
 
 ## TODO Train the model here.....
 for feature, label in data_iterator(words):
+    break
     print('feature', feature)
-    print('feature.shape', feature.shape)
     out = model(feature)
-    #print(out)
     print('out',out)
     print('out.shape',out.shape)
+    break
     print('label',label)
     print('label.shape',label.shape)
     print('len(dictionary)',len(dictionary))
