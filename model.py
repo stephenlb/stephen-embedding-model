@@ -84,7 +84,7 @@ def data_iterator(sentence, context):
     for index, word in enumerate(sentence):
         features = ' '.join(words[index:index+context])
         #labels = one_hot(tokens[index+context+1], dictionary)#.unsqueeze(dim=0)
-        labels = tokens[index+context+1].unsqueeze(dim=0)
+        labels = tokens[index+context+1]#.unsqueeze(dim=0)
 
         yield features, labels
         if index + context >= len(tokens)-2: break
@@ -97,29 +97,33 @@ words = "Found the bug, when you spam enter, the bot will send the messages auto
 #print('normalize(words)',normalize(words))
 #print(dictionary)
 context_length = 3
+epochs = 1000
 dictionary = build_dictionary(words)
 #tokens = tokenizer("Found when you", dictionary)
 #print('tokens',tokens)
 model = Embedding(dictionary, context_length)
 loss_fn = torch.nn.NLLLoss() ### if we onehot then ew might need to use 
+optim = torch.optim.SGD(model.parameters(), lr=0.001)
 #loss_fn = torch.nn.CrossEntropyLoss()
-out = model('when found bug')
-
-print(out)
-print(out.shape)
+#out = model('when found bug')
+#print(out)
+#print(out.shape)
 
 #print(one_hot(vectors[3]))
 
 ## TODO Train the model here.....
-for feature, label in data_iterator(words, context_length):
-    print('feature:', feature)
-    print('label:',label)
-    print('label.shape:',label.shape)
-    #out = tokenizer(feature, dictionary)
-    out = model(feature)
-    print('out:',out)
-    print('out.shape:',out.shape)
-    #print(feature.shape)
-    loss = loss_fn(out, label)
-    print(loss)
-    break
+for epoch in range(epochs):
+    for feature, label in data_iterator(words, context_length):
+        ##print('feature:', feature)
+        ##print('label:',label)
+        #print('label.shape:',label.shape)
+        #out = tokenizer(feature, dictionary)
+        model.zero_grad()
+        out = model(feature)
+        #print('out:',out)
+        #print('out.shape:',out.shape)
+        #print(feature.shape)
+        loss = loss_fn(out, label)
+        print(loss, f'epoch: {epoch}')
+        loss.backward()
+        optim.step()
