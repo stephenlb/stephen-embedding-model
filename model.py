@@ -49,7 +49,6 @@ class Embedding(torch.nn.Module):
         ## thank you @DeeNA - we will write our own Embedding
         self.embedding = torch.rand(self.number_of_words, 64, requires_grad=True)
         #self.embedding = torch.nn.Embedding(number_of_words, 256)
-        ## LSTM???
         self.linear1 = torch.nn.Linear(context * 64, 32)
         self.linear2 = torch.nn.Linear(32, self.number_of_words)
         self.activation1 = torch.nn.GELU()

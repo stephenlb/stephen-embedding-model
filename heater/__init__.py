@@ -23,15 +23,14 @@ def plot(input: Tensor) -> None:
     print(bottom)
 
 shades = ' ░▒▓█'
+shades = '░▓▓██'
+shades = '█████'
 colors = [22,34,46,118,154]
+heatmap = [55,127,198,208,220]
 def shade(value: float) -> str:
     r = round(value.item() * 4)
-    return f'\033[38;5;{colors[r]}m' + shades[r] + '\033[0m'
+    return f'\033[38;5;{heatmap[r]}m' + shades[r] + '\033[0m'
 
-    
-
-
-    
     print('▄▄▄▄▄▄▄▄▄▄▄▄')
     print('█    ░▓▒▓█▒█')
     print('█   ░▒▓█▒░ █')
