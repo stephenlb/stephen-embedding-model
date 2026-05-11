@@ -26,6 +26,7 @@ shades = ' ░▒▓█'
 shades = '░▓▓██'
 shades = '█████'
 colors = [22,34,46,118,154]
+rainbow = [19,27,36,118,196]
 heatmap = [55,127,198,208,220]
 def shade(value: float) -> str:
     r = round(value.item() * 4)
