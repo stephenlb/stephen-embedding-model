@@ -2,8 +2,10 @@ import re
 import torch
 import heater
 
-a = torch.rand(42,20)
-heater.plot(a)
+a = torch.rand(40,20)
+a = torch.linspace(0,1, steps=40).view(40,1)
+a = torch.linspace(0,1, steps=800).view(40,20)
+heater.plot(a, theme='heatmap')
 
 ## Today's task: Create our own from-scratch word embedding model
 ## Today's task: Create our own from-scratch word embedding model
