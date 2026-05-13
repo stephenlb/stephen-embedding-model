@@ -4,7 +4,9 @@ import torch
 ## Color Gradient \e00m1
 ## Scale down if needed to fit in window
 
-def plot(input: Tensor, theme='heatmap') -> None:
+## TODO fix or remove ligthness
+
+def plot(input: Tensor, theme='heatmap', lightness=4) -> None:
     a  = input / input.abs().max()
     #a = torch.nn.functional.normalize(input)
 
