@@ -1,19 +1,12 @@
 import re
 import torch
 import heater
-
-
-## TODO Scale gradient to fit window
-## TODO new Github repo
-## TODO More gradient themes
-## TODO Examples and a README.md
-## TODO Create a package for Pypi
-## TODO Actually use the lib for our origin intent
-## TODO 
+import numpy as np
 
 a = torch.rand(40,20)
 a = torch.linspace(0,1, steps=40).view(40,1)
 a = torch.linspace(0,1, steps=800).view(40,20)
+a = np.random.rand(40,20)
 a = torch.rand(40,20)
 heater.plot(a, theme='heatmap')
 
@@ -137,4 +130,10 @@ for epoch in range(epochs):
         loss.backward()
         optim.step()
 
-torch.save(model.state_dict(), 'model_weights.pth')
+#torch.save(model.state_dict(), 'model_weights.pth')
+
+samples = ["when", "bug", "when you spam"]
+out = model(samples[0])
+print(out)
+print(out.shape)
+heater.plot(out.unsqueeze(dim=1), theme='heatmap')

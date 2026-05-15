@@ -1,0 +1,15 @@
+[project]
+name = "heater"
+version = "0.1.0"
+description = "PyTorch Heatmap Visualizer for 1D Vectors and 2D Matrix Tensors"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Stephen Blum", email = "blum.stephen@gmail.com"},
+]
+dependencies = [
+]
+
+[project.urls]
+"Homepage" = "https://github.com/stephenlb/heater"
