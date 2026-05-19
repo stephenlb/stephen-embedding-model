@@ -1,12 +1,15 @@
-# PyTorch TUI Heatmap Visualizer for 1D Vectors and 2D Matrix Tensors
+# PyTorch & NumPy TUI Heatmap Visualizer for 1D Vectors and 2D Matrix Tensors
 
+```bash
+pip install heater-plot
+```
 
 ```python
 a = torch.rand(40,20)
 heater.plot(a, theme='heatmap')
 ```
 
-![Example Heatmap](images/example1.png)
+![Example Heatmap](https://raw.githubusercontent.com/stephenlb/heater/main/images/example1.png)
 
 
 ```python
@@ -14,7 +17,32 @@ b = torch.linspace(0,1, steps=800).view(40,20)
 heater.plot(b, theme='heatmap')
 ```
 
-![Example Heatmap](images/example2.png)
+![Example Heatmap](https://raw.githubusercontent.com/stephenlb/heater/main/images/example2.png)
+
+
+### Themes
+
+Pass any of these as `theme=`:
+
+| Theme | Description |
+| --- | --- |
+| `heatmap` | Default purple → pink → orange → yellow |
+| `rainbow` | Full spectrum red → violet |
+| `viridis` | Perceptually uniform purple → green → yellow |
+| `plasma` | Purple → magenta → orange → yellow |
+| `magma` | Black → purple → pink → cream |
+| `inferno` | Black → red → orange → pale yellow |
+| `fire` | Black → red → orange → yellow |
+| `ocean` | Deep blue → cyan → white |
+| `forest` | Dark green → lime → yellow |
+| `coolwarm` | Blue → white → red diverging |
+| `grayscale` | Black → white |
+
+```python
+heater.plot(a, theme='viridis')
+heater.plot(a, theme='ocean')
+heater.plot(a, theme='coolwarm')
+```
 
 
 ### Reference Charcodes for TUI

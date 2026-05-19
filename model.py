@@ -69,6 +69,9 @@ class Embedding(torch.nn.Module):
             out = torch.cat((out, padding))
 
         out = self.embedding[out]
+        if not self.training:
+            return out.mean(dim=0)
+
         out = out.view((1, -1))
         if self.training:
             out = self.activation1(self.linear1(out))
@@ -132,8 +135,10 @@ for epoch in range(epochs):
 
 #torch.save(model.state_dict(), 'model_weights.pth')
 
+model.eval()
 samples = ["when", "bug", "when you spam"]
-out = model(samples[0])
-print(out)
-print(out.shape)
-heater.plot(out.unsqueeze(dim=1), theme='heatmap')
+for sample in samples:
+    out = model(sample)
+    print(out)
+    print(out.shape)
+    heater.plot(out.unsqueeze(dim=1), theme='heatmap')

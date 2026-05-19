@@ -1,9 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "heater"
-version = "0.1.0"
-description = "PyTorch Heatmap Visualizer for 1D Vectors and 2D Matrix Tensors"
+name = "heater-plot"
+version = "0.1.5"
+description = "PyTorch & NumPy Heatmap Visualizer for 1D Vectors and 2D Matrix Tensors"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [
   {name = "Stephen Blum", email = "blum.stephen@gmail.com"},
@@ -13,3 +17,6 @@ dependencies = [
 
 [project.urls]
 "Homepage" = "https://github.com/stephenlb/heater"
+
+[tool.setuptools]
+py-modules = ["heater"]
